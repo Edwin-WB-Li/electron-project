@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import ProgressBar from "@/components/ProgressBar";
 
 import "./styles/global.css";
 
@@ -10,8 +11,9 @@ import "./utils/ipc";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
+    <ProgressBar />
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 postMessage({ payload: "removeLoading" }, "*");

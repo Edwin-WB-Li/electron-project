@@ -8,7 +8,7 @@ export default function Loading() {
   return (
     <div
       // className={`flex ${minHeight} items-center justify-center text-black dark:text-white sm:min-h-[50vh]`}
-      className={`flex items-center justify-center text-black dark:text-white sm:min-h-[50vh]`}
+      className={`flex items-center justify-center text-black dark:text-white sm:min-h-[100vh]`}
     >
       <svg
         width="32"

@@ -49,6 +49,7 @@ async function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, "favicon.ico"),
     // 传入脚本
     webPreferences: {
+      // 指定一个预加载脚本的路径。该脚本在渲染进程加载网页之前运行，并且可以访问 Node.js API
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
       // nodeIntegration: true,
