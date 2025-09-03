@@ -1,12 +1,14 @@
 {
   "name": "electron-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist-electron/main/main.js",
   "description": "Electron + Vite + React + Tailwindcss",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
+    "build:win": "tsc && vite build && electron-builder --win",
+    "build:mac": "tsc && vite build && electron-builder --mac",
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "preview": "vite preview",
