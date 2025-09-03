@@ -29,6 +29,7 @@
   "publish": {
     "provider": "github",
     "owner": "Edwin-WB-Li",
-    "repo": "electron-project"
+    "repo": "electron-project",
+    "releaseType": "release"
   }
 }
