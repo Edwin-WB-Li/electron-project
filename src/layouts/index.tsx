@@ -13,7 +13,7 @@ export default function Layouts() {
       <main>
         <Outlet />
       </main>
-      <footer className="p-3">
+      <footer className="p-3 text-center">
         <Update />
       </footer>
     </div>
