@@ -1,0 +1,29 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*" # 推送以 v 开头的标签时触发工作流，例如 v1.0.0, v1.0.1
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest] # 定义构建平台
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # 建议使用 18 或更高的 LTS 版本
+
+      - name: Install dependencies
+        run: yarn install # 或使用 pnpm, yarn
+
+      - name: Build and publish Electron app
+        run: yarn run build:win # 或者根据需要使用 build:mac
