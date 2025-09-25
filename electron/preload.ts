@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args;
     return ipcRenderer.on(channel, (event, ...args) =>
-      listener(event, ...args)
+      listener(event, ...args),
     );
   },
   // 移除事件监听器
@@ -26,14 +26,13 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
     const [channel, ...omit] = args;
     return ipcRenderer.invoke(channel, ...omit);
   },
-
   // You can expose other APTs you need here.
   // ...
 });
 
 // --------- Preload scripts loading ---------
 function domReady(
-  condition: DocumentReadyState[] = ["complete", "interactive"]
+  condition: DocumentReadyState[] = ["complete", "interactive"],
 ) {
   return new Promise((resolve) => {
     if (condition.includes(document.readyState)) {
@@ -68,33 +67,85 @@ const safeDOM = {
  * https://matejkustec.github.io/SpinThatShit
  */
 function useLoading() {
-  const className = `loaders-css__square-spin`;
+  const className = `loader`;
   const styleContent = `
-  @keyframes square-spin {
-    25% { transform: perspective(100px) rotateX(180deg) rotateY(0); }
-    50% { transform: perspective(100px) rotateX(180deg) rotateY(180deg); }
-    75% { transform: perspective(100px) rotateX(0) rotateY(180deg); }
-    100% { transform: perspective(100px) rotateX(0) rotateY(0); }
+  .${className} {
+    width: 48px;
+    height: 48px;
+    margin: auto;
+    position: relative;
   }
-  .${className} > div {
-    animation-fill-mode: both;
-    width: 50px;
-      height: 50px;
-      background: #fff;
-        animation: square-spin 3s 0s cubic-bezier(0.09, 0.57, 0.49, 0.9) infinite;
-      }
-      .app-loading-wrap {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #282c34;
-        z-index: 9;
-      }
+
+  .${className}:before {
+    content: '';
+    width: 48px;
+    height: 5px;
+    background: #f0808050;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    border-radius: 50%;
+    animation: shadow324 0.5s linear infinite;
+  }
+
+  .${className}:after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    background: #f08080;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 4px;
+    animation: jump7456 0.5s linear infinite;
+  }
+
+  @keyframes jump7456 {
+    15% {
+      border-bottom-right-radius: 3px;
+    }
+
+    25% {
+      transform: translateY(9px) rotate(22.5deg);
+    }
+
+    50% {
+      transform: translateY(18px) scale(1, .9) rotate(45deg);
+      border-bottom-right-radius: 40px;
+    }
+
+    75% {
+      transform: translateY(9px) rotate(67.5deg);
+    }
+
+    100% {
+      transform: translateY(0) rotate(90deg);
+    }
+  }
+
+  @keyframes shadow324 {
+    0%,
+    100% {
+      transform: scale(1, 1);
+    }
+
+    50% {
+      transform: scale(1.2, 1);
+    }
+  }
+
+  .app-loading-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #282c34;
+    z-index: 9;
+  }
   `;
   const oStyle = document.createElement("style");
   const oDiv = document.createElement("div");
@@ -102,7 +153,7 @@ function useLoading() {
   oStyle.id = "app-loading-style";
   oStyle.innerHTML = styleContent;
   oDiv.className = "app-loading-wrap";
-  oDiv.innerHTML = `<div class="${className}"><div></div></div>`;
+  oDiv.innerHTML = `<div class="${className}"></div>`;
 
   return {
     appendLoading() {

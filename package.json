@@ -23,9 +23,10 @@
   },
   "keywords": [
     "electron",
-    "vite",
     "react",
-    "tailwindcss"
+    "vite",
+    "tailwindcss",
+    "electron-builder"
   ],
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

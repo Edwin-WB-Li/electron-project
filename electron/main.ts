@@ -1,4 +1,13 @@
-import { app, BrowserWindow, shell, ipcMain } from "electron";
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  Notification,
+  // dialog,
+  // Menu,
+  // Tray,
+} from "electron";
 // import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -42,11 +51,13 @@ if (!app.requestSingleInstanceLock()) {
 let win: BrowserWindow | null = null;
 const preload = path.join(__dirname, "../preload/preload.mjs");
 const indexHtml = path.join(RENDERER_DIST, "index.html");
-
+// let appIcon = null;
 async function createWindow() {
   win = new BrowserWindow({
     title: "Main window",
     icon: path.join(process.env.VITE_PUBLIC, "favicon.ico"),
+    // 全屏
+    // fullscreen: true,
     // 传入脚本
     webPreferences: {
       // 指定一个预加载脚本的路径。该脚本在渲染进程加载网页之前运行，并且可以访问 Node.js API
@@ -69,6 +80,7 @@ async function createWindow() {
   }
 
   // Test actively push message to the Electron-Renderer
+  // did-finish-load 该事件在网页内容加载完成时触发
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
@@ -83,10 +95,38 @@ async function createWindow() {
   update(win);
 }
 
+const NOTIFICATION_TITLE = "Basic Notification";
+const NOTIFICATION_BODY = "Notification from the Main process";
+// 自定义通知
+function showNotification() {
+  new Notification({
+    title: NOTIFICATION_TITLE,
+    body: NOTIFICATION_BODY,
+  }).show();
+}
+
+// 自定义任务栏
+app.setUserTasks([
+  {
+    program: process.execPath,
+    arguments: "--new-window",
+    iconPath: process.execPath,
+    iconIndex: 0,
+    title: "custom task",
+    description: "Create a custom task",
+  },
+]);
+
 // 当 Electron 应用准备就绪后，调用 createWindow 函数
-app.whenReady().then(() => {
-  createWindow();
-});
+app
+  .whenReady()
+  .then(() => {
+    createWindow();
+    // console.log(
+    //   dialog.showOpenDialog({ properties: ["openFile", "multiSelections"] }),
+    // );
+  })
+  .then(showNotification);
 
 // 当用户尝试启动第二个实例时，聚焦到主窗口
 app.on("second-instance", () => {

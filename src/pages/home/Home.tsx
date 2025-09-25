@@ -133,7 +133,7 @@ const products = [
 
 export default function Home() {
   return (
-    <div className="w-full h-full">
+    <div className="h-full w-full">
       <HeroParallax products={products} />;
       <div className="mx-auto my-5 max-w-7xl rounded-3xl bg-gray-950/5 p-2 ring-1 ring-neutral-700/10 dark:bg-neutral-800">
         <ThreeDMarquee images={images} />
