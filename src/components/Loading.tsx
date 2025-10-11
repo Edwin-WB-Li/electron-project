@@ -1,14 +1,7 @@
-// import { usePathname } from "react-router";
-
 export default function Loading() {
-  // const pathname = usePathname();
-  // 判断是否首页
-  // const isHome = pathname === "/";
-  // const minHeight = isHome ? "min-h-[18vh]" : "min-h-[26vh]";
   return (
     <div
-      // className={`flex ${minHeight} items-center justify-center text-black dark:text-white sm:min-h-[50vh]`}
-      className={`flex items-center justify-center text-black dark:text-white sm:min-h-[100vh]`}
+      className={`flex items-center justify-center text-black sm:min-h-[100vh] dark:text-white`}
     >
       <svg
         width="32"

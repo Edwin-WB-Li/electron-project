@@ -4,17 +4,20 @@ import {
   shell,
   ipcMain,
   Notification,
-  // dialog,
-  // Menu,
-  // Tray,
+  dialog,
+  Menu,
+  Tray,
+  nativeImage,
 } from "electron";
 // import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fs from "node:fs";
 import os from "node:os";
 import { update } from "./update";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+let tray = null;
 
 // The built directory structure
 //
@@ -58,6 +61,7 @@ async function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, "favicon.ico"),
     // 全屏
     // fullscreen: true,
+    fullscreenable: true,
     // 传入脚本
     webPreferences: {
       // 指定一个预加载脚本的路径。该脚本在渲染进程加载网页之前运行，并且可以访问 Node.js API
@@ -91,6 +95,8 @@ async function createWindow() {
     return { action: "deny" };
   });
 
+  // 启动时最大化窗口（不是全屏）
+  win.maximize();
   // Auto update
   update(win);
 }
@@ -122,9 +128,81 @@ app
   .whenReady()
   .then(() => {
     createWindow();
-    // console.log(
-    //   dialog.showOpenDialog({ properties: ["openFile", "multiSelections"] }),
-    // );
+
+    const iconPath = path.join(process.env.VITE_PUBLIC, "favicon.ico"); // 图标路径
+    const icon = nativeImage.createFromPath(iconPath);
+
+    // 创建托盘实例
+    tray = new Tray(icon);
+
+    // 设置悬停提示
+    tray.setToolTip("我的 Electron 应用");
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: "显示主窗口",
+        click: () => {
+          if (win) win.show();
+        },
+      },
+      { type: "separator" }, // 分隔线
+      {
+        label: "退出",
+        click: () => app.quit(),
+        //   {
+        //   const result = await dialog.showMessageBox({
+        //   type: 'question',
+        //   buttons: ['取消', '确定'],
+        //   defaultId: 1,
+        //   title: '确认',
+        //   message:  '你确定要执行此操作吗？'
+        // });
+        //   // return result.response === 1; // 返回 true 如果用户点击"确定"
+        //  if(result)  app.quit(),
+        // }
+      },
+      { type: "separator" }, // 分隔线
+      {
+        label: "显示弹框",
+        click: () => {
+          const result = dialog.showMessageBox({
+            type: "question",
+            buttons: ["取消", "确定"],
+            defaultId: 1,
+            title: "确认",
+            message: "你确定要执行此操作吗？",
+          });
+          // return result.response === 1; // 返回 true 如果用户点击"确定"
+          console.log(result);
+        },
+        // click: () => app.quit(),
+        //   {
+        //   const result = await dialog.showMessageBox({
+        //   type: 'question',
+        //   buttons: ['取消', '确定'],
+        //   defaultId: 1,
+        //   title: '确认',
+        //   message:  '你确定要执行此操作吗？'
+        // });
+        //   // return result.response === 1; // 返回 true 如果用户点击"确定"
+        //  if(result)  app.quit(),
+        // }
+      },
+    ]);
+
+    tray.setContextMenu(contextMenu);
+
+    tray.on("click", () => {
+      // 在Windows/Linux上，点击切换窗口显示/隐藏；macOS通常显示菜单
+      if (process.platform === "darwin") {
+        // macOS可能需要额外逻辑，例如显示/隐藏窗口或显示菜单
+      } else {
+        if (win?.isVisible()) {
+          win?.hide();
+        } else {
+          win?.show();
+        }
+      }
+    });
   })
   .then(showNotification);
 
@@ -144,6 +222,31 @@ app.on("activate", () => {
   } else {
     createWindow();
   }
+});
+
+ipcMain.on("set-title", (event, newTitle) => {
+  // 修改窗口标题
+  const webContents = event.sender;
+  const window = BrowserWindow.fromWebContents(webContents);
+  if (window) {
+    window.setTitle(newTitle);
+  }
+});
+
+ipcMain.handle("show-open-dialog", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile", "multiSelections"],
+  });
+  return result; // 结果将返回给渲染进程
+});
+ipcMain.handle("reading-configurations", async () => {
+  const result = await dialog.showOpenDialog({ properties: ["openFile"] });
+  if (!result.canceled) {
+    const filePath = result.filePaths[0];
+    const content = fs.readFileSync(filePath, "utf-8");
+    return { content, filePath };
+  }
+  return null;
 });
 
 // New window example arg: new windows url

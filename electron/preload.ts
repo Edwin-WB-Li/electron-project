@@ -3,7 +3,17 @@ import { ipcRenderer, contextBridge } from "electron";
 
 // --------- Expose some API to the Renderer process ---------
 // contextBridge.exposeInMainWorld 将 Electron 的 ipcRenderer 功能安全地暴露给渲染进程，允许渲染进程与主进程进行通信
+// 这样渲染进程可以通过 window.ipcRenderer 访问这些方法（名字可以自定义）
 contextBridge.exposeInMainWorld("ipcRenderer", {
+  // send(channel, ...args)：向主进程发送异步消息（单向）。
+  // invoke(channel, ...args)：向主进程发送异步消息并等待主进程返回结果（双向）。
+  // on(channel, listener)：监听主进程发来的消息。
+  // once(channel, listener)：只监听一次主进程发来的消息。
+  // removeListener(channel, listener)：移除监听器。
+  // removeAllListeners(channel)：移除某个频道的所有监听器。
+  // off(channel, listener)：移除监听器（等价于 removeListener）。
+  // sendSync(channel, ...args)：向主进程发送同步消息（不推荐，可能阻塞渲染进程）。
+  // postMessage(channel, message, [transfer])：向主进程发送消息（支持 MessagePort）
   // 监听主进程发送的事件
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args;
@@ -26,6 +36,9 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
     const [channel, ...omit] = args;
     return ipcRenderer.invoke(channel, ...omit);
   },
+  setTitle: (title: string) => ipcRenderer.send("set-title", title),
+  showOpenDialog: () => ipcRenderer.invoke("show-open-dialog"),
+  readingConfigurations: () => ipcRenderer.invoke("reading-configurations"),
   // You can expose other APTs you need here.
   // ...
 });
